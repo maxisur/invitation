@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Influency Hub - Новогодний корпоратив в НОМЕРЕ</title>
+    
+    <!-- Preload критичных изображений -->
+    <link rel="preload" as="image" href="https://github.com/maxisur/invitation/blob/main/door.png?raw=true">
+    <link rel="preload" as="image" href="https://github.com/maxisur/invitation/blob/main/nomer.jpg?raw=true">
+    <link rel="preload" as="image" href="https://github.com/maxisur/invitation/blob/main/logo1.png?raw=true">
+    
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -143,19 +149,28 @@
                 let message = '';
                 switch(type) {
                     case 'yes':
-                        message = 'Будем рады тебя видеть.\nСвяжемся по у 💕';
+                        message = 'Уже видим как ты поёшь Агутина\nи пляшешь под Сердючку!\nДо встречи! 💕';
                         break;
                     case 'no':
-                        message = 'Понимаем, Новый год – \nсемейный праздник.\nИ мы рады, что с тобой\nу нас их две ❤️';
+                        message = 'Понимаем, Новый год – семейный праздник.\nИ мы рады, что с тобой – у нас их две ❤️';
                         break;
                     case 'maybe':
-                        message = 'Будем рады тебя видеть.\nСвяжемся по у 💕';
+                        message = 'Будем рады тебя видеть.\nСвяжемся по номеру 💕';
                         break;
                 }
                 
                 setModalMessage(message);
                 setShowModal(true);
                 sendToGoogleSheets(type);
+            };
+
+            const getModalBorderColor = () => {
+                switch(selectedResponse) {
+                    case 'yes': return '#ffd700';
+                    case 'no': return '#ff9068';
+                    case 'maybe': return '#ff9068';
+                    default: return '#ffd700';
+                }
             };
 
             return (
@@ -209,7 +224,7 @@
 
                         .instruction {
                             position: absolute;
-                            bottom: 15%;
+                            bottom: 12%;
                             left: 50%;
                             transform: translateX(-50%);
                             text-align: center;
@@ -234,8 +249,8 @@
 
                         .keycard {
                             position: absolute;
-                            bottom: ${stage === 'initial' ? `calc(8% + ${swipeY}px)` : stage === 'swiping' ? '48%' : '-30%'};
-                            left: ${stage === 'initial' ? '50%' : stage === 'swiping' ? '58%' : '58%'};
+                            bottom: ${stage === 'initial' ? `calc(10% + ${swipeY}px)` : stage === 'swiping' ? '48%' : '-30%'};
+                            left: ${stage === 'initial' ? '50%' : stage === 'swiping' ? '68%' : '68%'};
                             transform: translateX(-50%) translateZ(0);
                             width: 100px;
                             height: 165px;
@@ -273,7 +288,7 @@
                             position: absolute;
                             bottom: 12px;
                             right: 10px;
-                            width: 35px;
+                            width: 45px;
                             height: auto;
                         }
 
@@ -409,6 +424,10 @@
                             border-bottom: 1.5px solid rgba(255, 215, 0, 0.3);
                         }
 
+                        .detail-row.center-aligned {
+                            align-items: center;
+                        }
+
                         .detail-label {
                             font-size: 12px;
                             color: rgba(255, 255, 255, 0.6);
@@ -440,18 +459,20 @@
                             text-align: center;
                             margin-top: 18px;
                             margin-bottom: 25px;
-                            font-size: 14px;
-                            color: #ff9068;
-                            font-weight: 500;
-                            font-style: italic;
+                            font-family: 'Playfair Display', serif;
+                            font-size: 16px;
+                            color: #ffd700;
+                            font-weight: 700;
+                            font-style: normal;
                             line-height: 1.6;
+                            text-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
                         }
 
                         .brand-logo-card {
                             position: absolute;
                             top: 22px;
                             right: 22px;
-                            width: 65px;
+                            width: 75px;
                             height: auto;
                             opacity: 0.85;
                         }
@@ -460,7 +481,7 @@
                             display: flex;
                             justify-content: center;
                             align-items: flex-end;
-                            gap: 20px;
+                            gap: 25px;
                             margin-top: 20px;
                         }
 
@@ -537,13 +558,13 @@
 
                         .modal-content {
                             background: linear-gradient(135deg, #1a1210 0%, #2a1810 100%);
-                            border: 3px solid #ffd700;
+                            border: 3px solid ${getModalBorderColor()};
                             border-radius: 20px;
                             padding: 40px 30px;
                             max-width: 400px;
                             width: 90%;
                             text-align: center;
-                            box-shadow: 0 0 60px rgba(255, 215, 0, 0.6);
+                            box-shadow: 0 0 60px ${getModalBorderColor()}66;
                             animation: slideUp 0.3s ease;
                         }
 
@@ -605,7 +626,11 @@
                             }
 
                             .brand-logo-card {
-                                width: 55px;
+                                width: 65px;
+                            }
+
+                            .card-logo {
+                                width: 40px;
                             }
 
                             .response-btn.yes .btn-circle {
@@ -644,11 +669,15 @@
                             }
 
                             .card-footer {
-                                font-size: 12px;
+                                font-size: 14px;
                             }
 
                             .brand-logo-card {
-                                width: 50px;
+                                width: 60px;
+                            }
+
+                            .card-logo {
+                                width: 38px;
                             }
 
                             .response-btn.yes .btn-circle {
@@ -750,7 +779,7 @@
                                     <span className="detail-label">Время</span>
                                     <span className="detail-value">21:00</span>
                                 </div>
-                                <div className="detail-row">
+                                <div className="detail-row center-aligned">
                                     <span className="detail-label">Место</span>
                                     <span className="detail-value">
                                         караоке NOMER<br/>
@@ -782,14 +811,14 @@
                                     <div className="btn-circle">
                                         <CheckIcon size={36} />
                                     </div>
-                                    <div className="btn-label">БУДУ</div>
+                                    <div className="btn-label">Приду</div>
                                 </button>
 
                                 <button className="response-btn maybe" onClick={() => handleResponse('maybe')}>
                                     <div className="btn-circle">
                                         <QuestionIcon size={28} />
                                     </div>
-                                    <div className="btn-label">Думаю до 13.12</div>
+                                    <div className="btn-label">Отвечу до 13.12</div>
                                 </button>
                             </div>
                         </div>
