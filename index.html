@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influency Hub - Новогодний корпоратив в НОМЕРЕ</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useRef } = React;
+
+        const ChevronUp = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+            </svg>
+        );
+
+        function HotelInvitation() {
+            const [stage, setStage] = useState('initial');
+            const [swipeY, setSwipeY] = useState(0);
+            const [startY, setStartY] = useState(0);
+
+            const handleTouchStart = (e) => {
+                if (stage === 'initial') {
+                    setStartY(e.touches[0].clientY);
+                }
+            };
+
+            const handleTouchMove = (e) => {
+                if (stage === 'initial' && startY) {
+                    const currentY = e.touches[0].clientY;
+                    const diff = startY - currentY;
+                    if (diff > 0) {
+                        setSwipeY(Math.min(diff, 250));
+                    }
+                }
+            };
+
+            const handleTouchEnd = () => {
+                if (stage === 'initial' && swipeY > 180) {
+                    setStage('swiping');
+                    setTimeout(() => setStage('doorOpen'), 900);
+                    setTimeout(() => setStage('cardFallen'), 1800);
+                    setTimeout(() => setStage('zoomed'), 2600);
+                } else {
+                    setSwipeY(0);
+                }
+                setStartY(0);
+            };
+
+            const handleMouseDown = (e) => {
+                if (stage === 'initial') {
+                    setStartY(e.clientY);
+                }
+            };
+
+            const handleMouseMove = (e) => {
+                if (stage === 'initial' && startY) {
+                    const diff = startY - e.clientY;
+                    if (diff > 0) {
+                        setSwipeY(Math.min(diff, 250));
+                    }
+                }
+            };
+
+            const handleMouseUp = () => {
+                if (stage === 'initial' && swipeY > 180) {
+                    setStage('swiping');
+                    setTimeout(() => setStage('doorOpen'), 900);
+                    setTimeout(() => setStage('cardFallen'), 1800);
+                    setTimeout(() => setStage('zoomed'), 2600);
+                } else {
+                    setSwipeY(0);
+                }
+                setStartY(0);
+            };
+
+            return (
+                <>
+                    <style>{`
+                        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+
+                        body {
+                            overflow: hidden;
+                            font-family: 'Montserrat', sans-serif;
+                        }
+
+                        .invitation-container {
+                            width: 100vw;
+                            height: 100vh;
+                            position: relative;
+                            background: #0a0a0a;
+                            overflow: hidden;
+                            touch-action: none;
+                            user-select: none;
+                        }
+
+                        .door-background {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: url('https://github.com/maxisur/invitation/blob/main/door.png?raw=true') center/contain no-repeat;
+                            opacity: ${stage === 'initial' || stage === 'swiping' ? 1 : 0};
+                            transition: opacity 1s;
+                            z-index: 1;
+                            background-position: center 45%;
+                        }
+
+                        .door-overlay {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: rgba(0, 0, 0, 0.25);
+                        }
+
+                        .card-slot-indicator {
+                            position: absolute;
+                            top: 48%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            width: 180px;
+                            height: 320px;
+                            border: 3px solid rgba(255, 215, 0, 0.7);
+                            border-radius: 12px;
+                            box-shadow: 
+                                0 0 40px rgba(255, 215, 0, 0.5),
+                                inset 0 0 30px rgba(255, 215, 0, 0.3);
+                            opacity: ${stage === 'initial' ? 0.9 : 0};
+                            transition: opacity 0.5s;
+                            z-index: 5;
+                        }
+
+                        .slot-light {
+                            position: absolute;
+                            top: 15px;
+                            right: 15px;
+                            width: 16px;
+                            height: 16px;
+                            border-radius: 50%;
+                            background: ${stage === 'swiping' ? '#00ff88' : '#ff3232'};
+                            box-shadow: 0 0 30px ${stage === 'swiping' ? '#00ff88' : '#ff3232'};
+                            animation: ${stage === 'swiping' ? 'pulse 0.5s infinite' : 'none'};
+                        }
+
+                        @keyframes pulse {
+                            0%, 100% { opacity: 1; transform: scale(1); }
+                            50% { opacity: 0.4; transform: scale(1.2); }
+                        }
+
+                        .instruction {
+                            position: absolute;
+                            bottom: 20%;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            text-align: center;
+                            color: rgba(255, 255, 255, 0.95);
+                            font-size: 17px;
+                            font-weight: 500;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 15px;
+                            animation: bounce 2s infinite;
+                            z-index: 10;
+                            opacity: ${stage === 'initial' ? 1 : 0};
+                            transition: opacity 0.3s;
+                            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+                        }
+
+                        @keyframes bounce {
+                            0%, 100% { transform: translateX(-50%) translateY(0); }
+                            50% { transform: translateX(-50%) translateY(-18px); }
+                        }
+
+                        .keycard {
+                            position: absolute;
+                            bottom: ${stage === 'initial' ? '8%' : stage === 'swiping' ? '52%' : '-30%'};
+                            left: 50%;
+                            transform: translateX(-50%) translateY(${swipeY}px);
+                            width: 95px;
+                            height: 155px;
+                            background: linear-gradient(180deg, #1a1210 0%, #2a1810 100%);
+                            border-radius: 10px;
+                            box-shadow: 
+                                0 18px 55px rgba(0, 0, 0, 0.8),
+                                0 0 35px rgba(255, 215, 0, 0.4);
+                            border: 2.5px solid #ffd700;
+                            transition: ${stage === 'initial' ? 'none' : 'all 0.9s cubic-bezier(0.4, 0, 0.2, 1)'};
+                            z-index: 15;
+                            opacity: ${['cardFallen', 'zoomed'].includes(stage) ? 0 : 1};
+                        }
+
+                        .card-stripe {
+                            width: 100%;
+                            height: 28px;
+                            background: linear-gradient(90deg, #ffd700 0%, #ff9068 100%);
+                            margin-top: 18px;
+                            position: relative;
+                        }
+
+                        .card-chip {
+                            position: absolute;
+                            top: 58px;
+                            left: 14px;
+                            width: 28px;
+                            height: 22px;
+                            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+                            border-radius: 4px;
+                            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+                        }
+
+                        .card-logo {
+                            position: absolute;
+                            bottom: 10px;
+                            right: 8px;
+                            width: 32px;
+                            height: auto;
+                        }
+
+                        .card-text {
+                            position: absolute;
+                            bottom: 28px;
+                            left: 8px;
+                            font-size: 7px;
+                            color: #ffd700;
+                            font-weight: 700;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .door-container {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            perspective: 2000px;
+                            z-index: 3;
+                        }
+
+                        .door {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: url('https://github.com/maxisur/invitation/blob/main/door.png?raw=true') center/contain no-repeat;
+                            background-position: center 45%;
+                            transform-origin: left center;
+                            transform: perspective(2000px) rotateY(${['doorOpen', 'cardFallen', 'zoomed'].includes(stage) ? '-125deg' : '0deg'});
+                            transition: transform 1.3s cubic-bezier(0.4, 0, 0.2, 1);
+                            box-shadow: ${['doorOpen', 'cardFallen', 'zoomed'].includes(stage) 
+                                ? '40px 0 90px rgba(0, 0, 0, 0.95)' 
+                                : 'none'};
+                        }
+
+                        .interior-room {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: url('https://github.com/maxisur/invitation/blob/main/nomer.jpg?raw=true') center/cover;
+                            opacity: ${['doorOpen', 'cardFallen', 'zoomed'].includes(stage) ? 1 : 0};
+                            transition: opacity 1.2s ease-out 0.6s;
+                            z-index: 2;
+                        }
+
+                        .room-overlay {
+                            position: absolute;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.15) 100%);
+                        }
+
+                        .fallen-card {
+                            position: absolute;
+                            bottom: ${stage === 'zoomed' ? '50%' : '15%'};
+                            left: 50%;
+                            transform: 
+                                translateX(-50%) 
+                                translateY(${stage === 'zoomed' ? '50%' : '0'})
+                                scale(${stage === 'zoomed' ? 2.2 : 1})
+                                rotateX(${['cardFallen', 'zoomed'].includes(stage) ? '0deg' : '80deg'});
+                            width: 400px;
+                            max-width: 94%;
+                            background: linear-gradient(135deg, #1a1210 0%, #2a1810 100%);
+                            border-radius: 20px;
+                            box-shadow: 
+                                0 30px 80px rgba(0, 0, 0, 0.95),
+                                0 0 60px rgba(255, 215, 0, 0.6);
+                            border: 3px solid #ffd700;
+                            opacity: ${['cardFallen', 'zoomed'].includes(stage) ? 1 : 0};
+                            transition: all 1.6s cubic-bezier(0.4, 0, 0.2, 1);
+                            z-index: 20;
+                            padding: 28px 22px;
+                        }
+
+                        .card-header {
+                            text-align: center;
+                            margin-bottom: 16px;
+                        }
+
+                        .card-title {
+                            font-family: 'Playfair Display', serif;
+                            font-weight: 900;
+                            font-size: 30px;
+                            color: #ffd700;
+                            text-shadow: 0 0 40px rgba(255, 215, 0, 0.8);
+                            letter-spacing: 5px;
+                            margin-bottom: 8px;
+                        }
+
+                        .card-subtitle {
+                            font-size: 11px;
+                            color: rgba(255, 255, 255, 0.75);
+                            font-weight: 400;
+                            letter-spacing: 2.5px;
+                            text-transform: uppercase;
+                        }
+
+                        .card-tagline {
+                            text-align: center;
+                            font-size: 13px;
+                            color: #ff9068;
+                            font-style: italic;
+                            margin: 14px 0;
+                            font-weight: 500;
+                            line-height: 1.5;
+                        }
+
+                        .card-details {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 9px;
+                            margin: 16px 0;
+                        }
+
+                        .detail-row {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: flex-start;
+                            padding: 7px 0;
+                            border-bottom: 1px solid rgba(255, 215, 0, 0.25);
+                        }
+
+                        .detail-label {
+                            font-size: 9px;
+                            color: rgba(255, 255, 255, 0.55);
+                            text-transform: uppercase;
+                            letter-spacing: 1.3px;
+                            font-weight: 600;
+                            flex-shrink: 0;
+                            width: 85px;
+                        }
+
+                        .detail-value {
+                            font-size: 11px;
+                            color: #fff;
+                            font-weight: 400;
+                            text-align: right;
+                            line-height: 1.4;
+                        }
+
+                        .card-features {
+                            text-align: center;
+                            margin: 14px 0;
+                            font-size: 10px;
+                            color: rgba(255, 255, 255, 0.5);
+                            font-weight: 400;
+                            line-height: 1.5;
+                        }
+
+                        .card-footer {
+                            text-align: center;
+                            margin-top: 14px;
+                            font-size: 11px;
+                            color: #ff9068;
+                            font-weight: 500;
+                            font-style: italic;
+                            line-height: 1.5;
+                        }
+
+                        .brand-logo-card {
+                            position: absolute;
+                            top: 18px;
+                            right: 18px;
+                            width: 55px;
+                            height: auto;
+                            opacity: 0.85;
+                        }
+
+                        @media (max-width: 768px) {
+                            .fallen-card {
+                                transform: 
+                                    translateX(-50%) 
+                                    translateY(${stage === 'zoomed' ? '50%' : '0'})
+                                    scale(${stage === 'zoomed' ? 1.2 : 0.9})
+                                    rotateX(${['cardFallen', 'zoomed'].includes(stage) ? '0deg' : '80deg'});
+                                padding: 24px 20px;
+                            }
+
+                            .card-title {
+                                font-size: 26px;
+                            }
+
+                            .card-subtitle {
+                                font-size: 10px;
+                            }
+
+                            .card-tagline {
+                                font-size: 12px;
+                            }
+
+                            .detail-label {
+                                font-size: 8px;
+                                width: 72px;
+                            }
+
+                            .detail-value {
+                                font-size: 10px;
+                            }
+
+                            .brand-logo-card {
+                                width: 48px;
+                            }
+                        }
+
+                        @media (max-width: 480px) {
+                            .fallen-card {
+                                padding: 20px 16px;
+                            }
+
+                            .card-title {
+                                font-size: 22px;
+                            }
+
+                            .detail-label {
+                                font-size: 7px;
+                                width: 62px;
+                            }
+
+                            .detail-value {
+                                font-size: 9px;
+                            }
+
+                            .card-features {
+                                font-size: 9px;
+                            }
+
+                            .card-footer {
+                                font-size: 10px;
+                            }
+
+                            .brand-logo-card {
+                                width: 42px;
+                            }
+                        }
+                    `}</style>
+
+                    <div 
+                        className="invitation-container"
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseUp}
+                        style={{
+                            cursor: stage === 'initial' ? 'grab' : 'default'
+                        }}
+                    >
+                        <div className="door-background">
+                            <div className="door-overlay"></div>
+                        </div>
+
+                        {stage === 'initial' && (
+                            <>
+                                <div className="card-slot-indicator">
+                                    <div className="slot-light"></div>
+                                </div>
+                                <div className="instruction">
+                                    <ChevronUp size={32} />
+                                    <div>Проведите карту вверх</div>
+                                </div>
+                            </>
+                        )}
+
+                        <div className="door-container">
+                            <div className="door"></div>
+                        </div>
+
+                        <div className="interior-room">
+                            <div className="room-overlay"></div>
+                        </div>
+
+                        <div className="keycard">
+                            <div className="card-stripe"></div>
+                            <div className="card-chip"></div>
+                            <div className="card-text">INFLUENCY HUB</div>
+                            <img 
+                                src="https://github.com/maxisur/invitation/blob/main/logo1.png?raw=true" 
+                                alt="Logo" 
+                                className="card-logo"
+                            />
+                        </div>
+
+                        <div className="fallen-card">
+                            <img 
+                                src="https://github.com/maxisur/invitation/blob/main/logo1.png?raw=true" 
+                                alt="Influency Hub" 
+                                className="brand-logo-card"
+                            />
+
+                            <div className="card-header">
+                                <div className="card-title">НОМЕР</div>
+                                <div className="card-subtitle">Новогодний корпоратив</div>
+                            </div>
+
+                            <div className="card-tagline">
+                                INFLUENCY HUB & БЛОГЕРЫ<br/>
+                                УЕДИНИМСЯ В НОМЕРЕ?
+                            </div>
+
+                            <div className="card-details">
+                                <div className="detail-row">
+                                    <span className="detail-label">Дата</span>
+                                    <span className="detail-value">23 декабря 2024</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">Время</span>
+                                    <span className="detail-value">21:00</span>
+                                </div>
+                                <div className="detail-row">
+                                    <span className="detail-label">Место</span>
+                                    <span className="detail-value">
+                                        караоке NOMER<br/>
+                                        ул. Покровка, 3/7с1Г<br/>
+                                        вход напротив Scrocchiarella
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="card-features">
+                                Винное казино • Караоке • Фотозона<br/>
+                                Брендированные коктейли
+                            </div>
+
+                            <div className="card-footer">
+                                Хотим провести 2026 с тобой!<br/>
+                                А как Новый год встретишь...
+                            </div>
+                        </div>
+                    </div>
+                </>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<HotelInvitation />);
+    </script>
+</body>
+</html>
